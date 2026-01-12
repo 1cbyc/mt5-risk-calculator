@@ -6,15 +6,27 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List
+import os
 from recovery_roadmap import RecoveryRoadmapCalculator, SimulationConfig, TradeResult
 
 
 app = FastAPI(title="The Recovery Roadmap API")
 
+# Get allowed origins from environment or use defaults
+allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://riskcalculator.nsisong.com",
+]
+
+# Add any additional origins from environment variable
+if os.getenv("ALLOWED_ORIGINS"):
+    allowed_origins.extend(os.getenv("ALLOWED_ORIGINS").split(","))
+
 # Enable CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -90,4 +102,5 @@ async def simulate(request: SimulationRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
