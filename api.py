@@ -12,16 +12,15 @@ from recovery_roadmap import RecoveryRoadmapCalculator, SimulationConfig, TradeR
 
 app = FastAPI(title="The Recovery Roadmap API")
 
-# Get allowed origins from environment or use defaults
-allowed_origins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "https://riskcalculator.nsisong.com",
-]
+# Get allowed origins from environment variable (required)
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "")
+if not allowed_origins_str:
+    raise ValueError(
+        "ALLOWED_ORIGINS environment variable is required. "
+        "Set it to a comma-separated list of allowed origins (e.g., https://example.com,http://localhost:3000)"
+    )
 
-# Add any additional origins from environment variable
-if os.getenv("ALLOWED_ORIGINS"):
-    allowed_origins.extend(os.getenv("ALLOWED_ORIGINS").split(","))
+allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",") if origin.strip()]
 
 # Enable CORS for frontend
 app.add_middleware(
@@ -102,5 +101,7 @@ async def simulate(request: SimulationRequest):
 
 if __name__ == "__main__":
     import uvicorn
+    # PORT is typically set by the platform (Railway, Heroku, etc.)
+    # Default to 8000 only for local development
     port = int(os.getenv("PORT", "8000"))
     uvicorn.run(app, host="0.0.0.0", port=port)

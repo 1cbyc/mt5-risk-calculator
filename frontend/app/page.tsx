@@ -50,8 +50,20 @@ export default function Home() {
     setResults(null)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-      const response = await fetch(`${apiUrl}/api/simulate`, {
+      // Get API URL from environment variable - required for production
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL
+      
+      if (!apiUrl) {
+        throw new Error("API URL not configured. Please set NEXT_PUBLIC_API_URL environment variable.")
+      }
+      
+      // Ensure we have a valid absolute URL
+      if (!apiUrl.startsWith("http://") && !apiUrl.startsWith("https://")) {
+        throw new Error("Invalid API URL configuration. NEXT_PUBLIC_API_URL must be a full URL starting with http:// or https://")
+      }
+      
+      const endpoint = `${apiUrl.replace(/\/$/, "")}/api/simulate`
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,14 +77,22 @@ export default function Home() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || "Failed to simulate")
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.detail || errorData.message || errorMessage
+        } catch {
+          // If response is not JSON, use status text
+        }
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
       setResults(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred")
+      console.error("API Error:", err)
+      const errorMessage = err instanceof Error ? err.message : "An error occurred"
+      setError(errorMessage + ". Please check that the API URL is correctly configured.")
     } finally {
       setLoading(false)
     }
