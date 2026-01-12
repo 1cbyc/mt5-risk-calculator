@@ -1,4 +1,4 @@
-# The Recovery Roadmap
+# MT5 Risk Calculator (My Acc Recovery Roadmap)
 
 A trading utility that calculates exactly how many trades it takes to grow an account from a starting balance to a target balance using a fixed Risk-Reward strategy.
 
@@ -8,7 +8,7 @@ A trading utility that calculates exactly how many trades it takes to grow an ac
 - **Flexible Configuration**: Customize starting balance, target balance, risk percentage, and risk-reward ratio
 - **Multiple Interfaces**: 
   - Command-line interface (CLI)
-  - Web interface with modern UI
+  - Basic Web interface [Check it now](https://riskcalculator.nsisong.com)
 - **Detailed Output**: Formatted tables showing each trade with balance, risk, and profit
 
 ## Installation
